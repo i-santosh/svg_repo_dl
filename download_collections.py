@@ -1,5 +1,5 @@
 """
-SVG Repo Downloader - Simple & Fast
+SVG Repo Collection Downloader - Simple & Fast
 """
 import json
 import os
@@ -12,16 +12,9 @@ def load_collections(json_path: str):
     with open(json_path, 'r') as f:
         return json.load(f)
 
-def download_collection(collection_name: str, download_dir: str):
-    """Download a single collection.
-    
-    Args:
-        collection_name: Name of the collection (e.g. 'free-icons')
-        download_dir: Directory to save downloaded SVGs
-    """
-    url = f'https://svgrepo.com/collections/{collection_name}/'
-    collection_dir = os.path.join(download_dir, collection_name)
-    os.makedirs(collection_dir, exist_ok=True)
+def download_collection(url: str, download_dir: str):
+    """Download a single collection."""
+    collection_name = url.rstrip('/').split('/')[-1]
     
     try:
         # Set environment to handle Unicode properly
@@ -30,7 +23,7 @@ def download_collection(collection_name: str, download_dir: str):
         
         result = subprocess.run(
             ["svgrepodl", url], 
-            cwd=collection_dir,
+            cwd=download_dir,  # Run directly in the main download directory
             capture_output=True, 
             text=True, 
             check=True,
@@ -53,7 +46,7 @@ def main():
     
     # Download with 12 workers (matching your CPU threads)
     with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
-        futures = [executor.submit(download_collection, collection_name, download_dir) for collection_name in collections]
+        futures = [executor.submit(download_collection, url, download_dir) for url in collections]
         
         results = []
         for future in tqdm(concurrent.futures.as_completed(futures), total=len(collections)):
