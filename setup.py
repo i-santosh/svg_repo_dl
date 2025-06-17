@@ -21,6 +21,7 @@ setup(
 		'progress',
 		'click',
 		'colored',
+		'tqdm',
 	],
 	classifiers=[
 		"Programming Language :: Python :: 3",
